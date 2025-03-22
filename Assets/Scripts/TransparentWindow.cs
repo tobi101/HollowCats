@@ -84,23 +84,42 @@ public class TransparentWindow : MonoBehaviour
     private const uint NIF_ICON = 0x00000002;
     private const uint LR_LOADFROMFILE = 0x00000010;
     private const uint LR_DEFAULTSIZE = 0x00000040;
+
+    private IntPtr hWnd;
     
     private void Start()
     {
-        IntPtr hWnd = GetActiveWindow();
+        hWnd = GetActiveWindow();
         InitTrayIcon(hWnd);
         
         MARGINS margins = new MARGINS { cxLeftWidth = -1 };
         DwmExtendFrameIntoClientArea(hWnd, ref margins);
 
-        SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TOOLWINDOW);
-        SetLayeredWindowAttributes(hWnd, 0, 0, LWA_COLORKEY);
+        SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        //SetLayeredWindowAttributes(hWnd, 0, 0, LWA_COLORKEY);
         
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
         
         Application.runInBackground = true;
     }
-    
+
+    private void Update()
+    {
+        SetClickThrough(Physics2D.OverlapPoint(CodeMonkey.Utils.UtilsClass.GetMouseWorldPosition()) == null);
+    }
+
+    private void SetClickThrough(bool clickThrough)
+    {
+        if (clickThrough)
+        {
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        }
+        else
+        {
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
+        }
+    }
+
     private void InitTrayIcon(IntPtr hWnd)
     {
         string iconPath = Application.streamingAssetsPath  + "/icon.ico";
@@ -111,7 +130,7 @@ public class TransparentWindow : MonoBehaviour
         trayIcon.hWnd = hWnd;
         trayIcon.uID = 1;
         trayIcon.uFlags = 0x00000001 | 0x00000002;
-        trayIcon.szTip = "TransparentUnityApp";
+        trayIcon.szTip = "HollowCats";
         trayIcon.hIcon = hIcon;
         
         Shell_NotifyIcon(NIM_ADD, ref trayIcon);
