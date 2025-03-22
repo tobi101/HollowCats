@@ -112,7 +112,7 @@ public class TransparentWindow : MonoBehaviour
     {
         if (clickThrough)
         {
-            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW);
         }
         else
         {
